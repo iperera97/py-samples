@@ -2,7 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from app.exceptions import RepositoryError
+from app.exceptions import ServiceError
 from app.main import create_app
 
 
@@ -27,9 +27,9 @@ def test_attendance_trend_returns_200(mock_get_service, client):
 
 
 @patch("app.api.attendance._get_service")
-def test_attendance_trend_returns_500_on_repository_error(mock_get_service, client):
+def test_attendance_trend_returns_500_on_service_error(mock_get_service, client):
     mock_service = Mock()
-    mock_service.get_attendance_trend.side_effect = RepositoryError("db down")
+    mock_service.get_attendance_trend.side_effect = ServiceError("db down")
     mock_get_service.return_value = mock_service
 
     resp = client.get("/api/attendance/trend")

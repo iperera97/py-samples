@@ -2,6 +2,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
+from app.exceptions import RepositoryError
 from app.repositories.datafustion.attendance import AttendanceRepository
 
 
@@ -31,3 +32,15 @@ def test_get_attendance_count_success(mock_s3, mock_ctx):
     result = repo.get_attendance_count(days=30)
 
     assert result == 42
+
+
+@patch("app.repositories.datafustion.base.AmazonS3")
+def test_get_attendance_trend_wraps_query_failure(mock_s3, mock_ctx):
+    mock_ctx.sql.return_value.to_pandas.side_effect = ValueError("query failed")
+    repo = AttendanceRepository()
+
+    with pytest.raises(RepositoryError) as exc_info:
+        repo.get_attendance_trend(days=30)
+
+    assert isinstance(exc_info.value.cause, ValueError)
+    assert mock_ctx.sql.return_value.to_pandas.call_count == 3

@@ -30,4 +30,3 @@ class AttendanceRepository(DataFusionBaseRepository, AttendanceRepositoryInterfa
         """
         df = self._run_query(sql)
         return int(df["total_count"].iloc[0])
-
